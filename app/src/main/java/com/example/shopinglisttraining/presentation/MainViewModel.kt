@@ -1,6 +1,5 @@
 package com.example.shopinglisttraining.presentation
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.shopinglisttraining.data.ShopListRepositoryImpl
 import com.example.shopinglisttraining.domain.EditItemUseCase
@@ -16,23 +15,15 @@ class MainViewModel : ViewModel() {
     private val removeItemUseCase = RemoveItemUseCase(repository)
     private val editItemUseCase = EditItemUseCase(repository)
 
-    val shopList = MutableLiveData<List<ShopItem>>()
-
-    fun getShopList() {
-        val list = getShopListUseCase.getShopList()
-        shopList.value = list
-    }
+    val shopList = getShopListUseCase.getShopList()
 
     fun removeShopItem(shopItem: ShopItem) {
         removeItemUseCase.removeItem(shopItem)
-        getShopList()
     }
 
     fun changeEnableState(shopItem: ShopItem) {
         val newItem = shopItem.copy(enabled = !shopItem.enabled)
         editItemUseCase.editItem(newItem)
-        getShopList()
-
     }
 
 }
