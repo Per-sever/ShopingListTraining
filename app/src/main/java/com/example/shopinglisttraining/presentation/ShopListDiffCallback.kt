@@ -24,9 +24,7 @@ class ShopListDiffCallback(
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val newItem = newList[newItemPosition]
-        val oldItem = oldList[oldItemPosition]
-        return newItem.enabled == oldItem.enabled
+        return oldList[oldItemPosition] == newList[newItemPosition]
     }
 
 }
