@@ -3,6 +3,7 @@ package com.example.shopinglisttraining.presentation
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,7 @@ class ShopItemFragment : Fragment() {
     private var shopItemId: Int = ShopItem.UNDEFINED_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("ShopItemFragment", "onCreate")
         super.onCreate(savedInstanceState)
         parseParams()
     }
@@ -54,7 +56,7 @@ class ShopItemFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.accessToClose.observe(viewLifecycleOwner) {
             activity?.onBackPressed()
-            requireActivity().onBackPressed()
+//            requireActivity().onBackPressed()
         }
         viewModel.errorInputCount.observe(viewLifecycleOwner) {
             val message = if (it) {
