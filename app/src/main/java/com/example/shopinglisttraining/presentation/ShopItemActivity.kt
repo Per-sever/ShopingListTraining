@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.shopinglisttraining.R
 import com.example.shopinglisttraining.domain.ShopItem
 
-class ShopItemActivity : AppCompatActivity() {
+class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
@@ -20,6 +20,10 @@ class ShopItemActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             lunchMode()
         }
+    }
+
+    override fun onEditingFinished() {
+        finish()
     }
 
     private fun lunchMode() {
