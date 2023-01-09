@@ -1,15 +1,16 @@
 package com.example.shopinglisttraining.presentation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import com.example.shopinglisttraining.data.ShopListRepositoryImpl
 import com.example.shopinglisttraining.domain.EditItemUseCase
 import com.example.shopinglisttraining.domain.GetShopListUseCase
 import com.example.shopinglisttraining.domain.RemoveItemUseCase
 import com.example.shopinglisttraining.domain.ShopItem
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopListRepositoryImpl
+    private val repository = ShopListRepositoryImpl(application)
 
     private val getShopListUseCase = GetShopListUseCase(repository)
     private val removeItemUseCase = RemoveItemUseCase(repository)
@@ -20,7 +21,6 @@ class MainViewModel : ViewModel() {
     fun removeShopItem(shopItem: ShopItem) {
         removeItemUseCase.removeItem(shopItem)
     }
-
 
 
     fun changeEnableState(shopItem: ShopItem) {
