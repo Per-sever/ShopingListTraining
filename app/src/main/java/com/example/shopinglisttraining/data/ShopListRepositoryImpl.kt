@@ -1,55 +1,36 @@
 package com.example.shopinglisttraining.data
 
+import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.example.shopinglisttraining.domain.ShopItem
 import com.example.shopinglisttraining.domain.ShopListRepository
-import kotlin.random.Random
 
-object ShopListRepositoryImpl : ShopListRepository {
-    private val shopList = sortedSetOf<ShopItem>({ o1, o2 -> o1.id.compareTo(o2.id) })
-    private val shopListLiveData = MutableLiveData<List<ShopItem>>()
+class ShopListRepositoryImpl(application: Application) : ShopListRepository {
 
-    private var autoIncrementId = 0
-
-    init {
-        for (i in 0 until 1000) {
-            val item = ShopItem("Name $i", i, Random.nextBoolean())
-            addItem(item)
-        }
-    }
+    private val shopListDao = AppDatabase.getInstance(application).shopListDao()
+    private val mapper = ShopListMapper()
 
     override fun addItem(item: ShopItem) {
-        if (item.id == ShopItem.UNDEFINED_ID) {
-            item.id = autoIncrementId++
-        }
-        shopList.add(item)
-        updateList()
+        shopListDao.addShopItem(mapper.mapEntityToDbModel(item))
     }
 
     override fun removeItem(item: ShopItem) {
-        shopList.remove(item)
-        updateList()
+        shopListDao.deleteShopItem(item.id)
     }
 
-    override fun getShopList(): LiveData<List<ShopItem>> {
-        return shopListLiveData
-    }
+    override fun getShopList(): LiveData<List<ShopItem>> =
+        Transformations.map(shopListDao.getShopList()) { 
+            mapper.mapListModelToListEntity(it)
+        }
 
     override fun editItem(item: ShopItem) {
-        val oldElement = getItemById(item.id)
-        shopList.remove(oldElement)
-        addItem(item)
+        shopListDao.addShopItem(mapper.mapEntityToDbModel(item))
     }
 
     override fun getItemById(itemId: Int): ShopItem {
-        return shopList.find { it.id == itemId } ?: throw RuntimeException(
-            "Element with id " +
-                    "$itemId no found"
-        )
+        val dbModel = shopListDao.getShopItem(itemId)
+        return mapper.mapDbModelToEntity(dbModel)
     }
 
-    private fun updateList() {
-        shopListLiveData.value = shopList.toList()
-    }
 }
