@@ -4,14 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.shopinglisttraining.data.ShopListRepositoryImpl
 import com.example.shopinglisttraining.domain.AddItemUseCase
 import com.example.shopinglisttraining.domain.EditItemUseCase
 import com.example.shopinglisttraining.domain.GetItemByIdUseCase
 import com.example.shopinglisttraining.domain.ShopItem
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
@@ -22,7 +20,6 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     private val editItemShopUseCase = EditItemUseCase(repository)
     private val getItemByIdUseCase = GetItemByIdUseCase(repository)
 
-    private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _errorInputName = MutableLiveData<Boolean>()
     val errorInputName: LiveData<Boolean>
@@ -45,7 +42,7 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         val count = parseCount(inputCount)
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
-            scope.launch {
+            viewModelScope.launch {
                 val shopItem = ShopItem(name, count, true)
                 addItemUseCase.addItem(shopItem)
                 finishWork()
@@ -60,7 +57,7 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
             _shopItemById.value?.let {
-                scope.launch {
+                viewModelScope.launch {
                     val item = it.copy(name = name, count = count)
                     editItemShopUseCase.editItem(item)
                     finishWork()
@@ -70,7 +67,7 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun getItemByIdUseCase(shopItemId: Int) {
-        scope.launch {
+        viewModelScope.launch {
             val item = getItemByIdUseCase.getItemById(shopItemId)
             _shopItemById.value = item
         }
@@ -113,8 +110,4 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         _accessToClose.value = Unit
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        scope.cancel()
-    }
 }
