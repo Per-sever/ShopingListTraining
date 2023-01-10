@@ -7,6 +7,10 @@ import com.example.shopinglisttraining.domain.EditItemUseCase
 import com.example.shopinglisttraining.domain.GetShopListUseCase
 import com.example.shopinglisttraining.domain.RemoveItemUseCase
 import com.example.shopinglisttraining.domain.ShopItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -18,14 +22,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val shopList = getShopListUseCase.getShopList()
 
+    private val scope = CoroutineScope(Dispatchers.IO)
+
     fun removeShopItem(shopItem: ShopItem) {
-        removeItemUseCase.removeItem(shopItem)
+        scope.launch {
+            removeItemUseCase.removeItem(shopItem)
+        }
     }
 
 
     fun changeEnableState(shopItem: ShopItem) {
-        val newItem = shopItem.copy(enabled = !shopItem.enabled)
-        editItemUseCase.editItem(newItem)
+        scope.launch {
+            val newItem = shopItem.copy(enabled = !shopItem.enabled)
+            editItemUseCase.editItem(newItem)
+        }
+
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        scope.cancel()
+    }
 }
