@@ -1,25 +1,18 @@
 package com.example.shopinglisttraining.presentation
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.example.shopinglisttraining.data.ShopListRepositoryImpl
+import androidx.lifecycle.*
 import com.example.shopinglisttraining.domain.AddItemUseCase
 import com.example.shopinglisttraining.domain.EditItemUseCase
 import com.example.shopinglisttraining.domain.GetItemByIdUseCase
 import com.example.shopinglisttraining.domain.ShopItem
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = ShopListRepositoryImpl(application)
-
-    private val addItemUseCase = AddItemUseCase(repository)
-    private val editItemShopUseCase = EditItemUseCase(repository)
-    private val getItemByIdUseCase = GetItemByIdUseCase(repository)
-
+class ShopItemViewModel @Inject constructor(
+    private val addItemUseCase: AddItemUseCase,
+    private val editItemUseCase: EditItemUseCase,
+    private val getItemByIdUseCase: GetItemByIdUseCase
+) : ViewModel() {
 
     private val _errorInputName = MutableLiveData<Boolean>()
     val errorInputName: LiveData<Boolean>
@@ -59,7 +52,7 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
             _shopItemById.value?.let {
                 viewModelScope.launch {
                     val item = it.copy(name = name, count = count)
-                    editItemShopUseCase.editItem(item)
+                    editItemUseCase.editItem(item)
                     finishWork()
                 }
             }

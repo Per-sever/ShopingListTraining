@@ -5,11 +5,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.example.shopinglisttraining.domain.ShopItem
 import com.example.shopinglisttraining.domain.ShopListRepository
+import javax.inject.Inject
 
-class ShopListRepositoryImpl(application: Application) : ShopListRepository {
+class ShopListRepositoryImpl @Inject constructor(
+    private val shopListDao: ShopListDao,
+    private val mapper: ShopListMapper
+) : ShopListRepository {
 
-    private val shopListDao = AppDatabase.getInstance(application).shopListDao()
-    private val mapper = ShopListMapper()
 
     override suspend fun addItem(item: ShopItem) {
         shopListDao.addShopItem(mapper.mapEntityToDbModel(item))
@@ -19,7 +21,7 @@ class ShopListRepositoryImpl(application: Application) : ShopListRepository {
         shopListDao.deleteShopItem(item.id)
     }
 
-    override  fun getShopList(): LiveData<List<ShopItem>> =
+    override fun getShopList(): LiveData<List<ShopItem>> =
         Transformations.map(shopListDao.getShopList()) {
             mapper.mapListModelToListEntity(it)
         }
